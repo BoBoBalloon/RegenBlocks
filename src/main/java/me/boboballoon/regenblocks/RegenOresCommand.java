@@ -1,4 +1,4 @@
-package me.boboballoon.regenores;
+package me.boboballoon.regenblocks;
 
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;

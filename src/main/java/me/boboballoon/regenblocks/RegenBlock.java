@@ -1,4 +1,4 @@
-package me.boboballoon.regenores;
+package me.boboballoon.regenblocks;
 
 import org.bukkit.Location;
 import org.bukkit.Material;

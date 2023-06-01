@@ -1,4 +1,4 @@
-package me.boboballoon.regenores;
+package me.boboballoon.regenblocks;
 
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;

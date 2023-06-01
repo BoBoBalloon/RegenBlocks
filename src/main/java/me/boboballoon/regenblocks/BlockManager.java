@@ -1,4 +1,4 @@
-package me.boboballoon.regenores;
+package me.boboballoon.regenblocks;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
