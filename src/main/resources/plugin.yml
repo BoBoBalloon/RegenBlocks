@@ -1,6 +1,12 @@
-name: RegenOres
+name: RegenBlocks
 version: '${project.version}'
-main: net.dimensionmc.regenores.RegenOres
+main: me.boboballoon.regenores.RegenBlocks
 api-version: 1.19
 authors: [BoBoBalloon]
 description: a plugin that regenerates blocks
+
+commands:
+  regenblock:
+    description: A command used to set a regen block
+    aliases: [rb]
+    permission: regenblocks.command
