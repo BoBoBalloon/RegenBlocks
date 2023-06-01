@@ -1,5 +1,6 @@
 package me.boboballoon.regenblocks;
 
+import com.google.common.collect.ImmutableSet;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.stream.JsonWriter;
@@ -31,6 +32,16 @@ public class BlockManager {
     }
 
     /**
+     * A method used to get a copy of all the blocks registered to the cache
+     *
+     * @return a copy of all the blocks registered to the cache
+     */
+    @NotNull
+    public ImmutableSet<RegenBlock> getBlocks() {
+        return ImmutableSet.copyOf(this.cache.values());
+    }
+
+    /**
      * A method used to set the cache equal to disk
      */
     private void read() {
@@ -56,6 +67,8 @@ public class BlockManager {
 
                 this.cache.put(block.getLocation(), block);
             }
+
+            Bukkit.getScheduler().runTask(this.plugin, () -> this.cache.values().forEach(block -> block.getLocation().getBlock().setType(block.getType())));
         });
     }
 

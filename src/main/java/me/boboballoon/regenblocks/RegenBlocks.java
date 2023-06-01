@@ -6,11 +6,23 @@ import org.jetbrains.annotations.NotNull;
 public final class RegenBlocks extends JavaPlugin {
     private BlockManager blockManager;
 
+    /*
+    TODO:
+    1. Finish writing the command
+    2. Test the permissions on the command (can you use it if you are deop)
+    3. Create block break listener
+     */
+
     @Override
     public void onEnable() {
         this.blockManager = new BlockManager(this);
 
-        new RegenOresCommand(this);
+        new RegenBlockCommand(this);
+    }
+
+    @Override
+    public void onDisable() {
+        this.blockManager.getBlocks().forEach(block -> block.getLocation().getBlock().setType(block.getType()));
     }
 
     /**
