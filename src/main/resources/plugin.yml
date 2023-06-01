@@ -1,0 +1,6 @@
+name: RegenOres
+version: '${project.version}'
+main: net.dimensionmc.regenores.RegenOres
+api-version: 1.19
+authors: [BoBoBalloon]
+description: a plugin that regenerates blocks
