@@ -1,5 +1,8 @@
 package me.boboballoon.regenblocks;
 
+import me.boboballoon.regenblocks.command.RegenBlockCommand;
+import me.boboballoon.regenblocks.listener.BlockBreakListener;
+import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
@@ -8,15 +11,14 @@ public final class RegenBlocks extends JavaPlugin {
 
     /*
     TODO:
-    1. Finish writing the command
-    2. Test the permissions on the command (can you use it if you are deop)
-    3. Create block break listener
+    1. Test the permissions on the command (can you use it if you are deop)
      */
 
     @Override
     public void onEnable() {
         this.blockManager = new BlockManager(this);
 
+        Bukkit.getPluginManager().registerEvents(new BlockBreakListener(this), this);
         new RegenBlockCommand(this);
     }
 

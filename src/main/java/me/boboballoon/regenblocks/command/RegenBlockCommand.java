@@ -1,11 +1,13 @@
-package me.boboballoon.regenblocks;
+package me.boboballoon.regenblocks.command;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
+import me.boboballoon.regenblocks.BlockManager;
+import me.boboballoon.regenblocks.RegenBlocks;
 import org.bukkit.ChatColor;
-import org.bukkit.command.Command;
-import org.bukkit.command.CommandExecutor;
-import org.bukkit.command.CommandSender;
-import org.bukkit.command.TabExecutor;
+import org.bukkit.Material;
+import org.bukkit.block.Block;
+import org.bukkit.command.*;
 import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -13,6 +15,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Level;
 
 public class RegenBlockCommand implements CommandExecutor, TabExecutor {
     private final BlockManager blockManager;
@@ -21,17 +24,57 @@ public class RegenBlockCommand implements CommandExecutor, TabExecutor {
 
     public RegenBlockCommand(@NotNull RegenBlocks plugin) {
         this.blockManager = plugin.getBlockManager();
-        plugin.getCommand("regenblock").setExecutor(this);
-        plugin.getCommand("regenblock").setTabCompleter(this);
+        PluginCommand command = plugin.getCommand("regenblock");
+
+        if (command == null) {
+            plugin.getLogger().log(Level.SEVERE, "There was an error registering the plugin command!");
+            throw new RuntimeException("There was an error getting the command registration from the server!");
+        }
+
+        command.setExecutor(this);
+        command.setTabCompleter(this);
     }
 
     @Override
     public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        //not player
         if (!(sender instanceof Player)) {
             this.sendMessage(sender, "&r&cOnly players can execute this command!");
             return false;
         }
 
+        Player player = (Player) sender;
+
+        Block target = player.getTargetBlock(Sets.newHashSet(Material.WATER, Material.LAVA), 5);
+
+        //not valid block
+        if (target.getType() == Material.AIR) {
+            this.sendMessage(player, "&r&cInvalid block!");
+            return false;
+        }
+
+        //correct remove
+        if (args.length == 1 && args[0].trim().equalsIgnoreCase("remove")) {
+            this.blockManager.removeBlock(target.getLocation());
+            this.sendMessage(player, "&r&aSuccess!");
+            return true;
+        }
+
+        //not correct set
+        if (args.length != 2 || !args[0].trim().equalsIgnoreCase("set")) {
+            this.sendMessage(player, "&r&cInvalid arguments!");
+            return false;
+        }
+
+        long delay;
+        try {
+            delay = Long.parseLong(args[1].trim());
+        } catch (NumberFormatException e) {
+            this.sendMessage(player, "&r&cInvalid delay! Must be an integer!");
+            return false;
+        }
+
+        this.blockManager.addBlock(target.getLocation(), delay);
         return true;
     }
 

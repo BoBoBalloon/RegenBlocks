@@ -7,6 +7,7 @@ import com.google.gson.stream.JsonWriter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.File;
 import java.io.FileReader;
@@ -124,5 +125,16 @@ public class BlockManager {
 
         File file = new File(this.plugin.getDataFolder(), block.getUUID().toString() + ".json");
         file.delete();
+    }
+
+    /**
+     * A method that requests the block from the cache
+     *
+     * @param location the location of the block
+     * @return a regen block or null
+     */
+    @Nullable
+    public RegenBlock getBlock(@NotNull Location location) {
+        return this.cache.get(location);
     }
 }
