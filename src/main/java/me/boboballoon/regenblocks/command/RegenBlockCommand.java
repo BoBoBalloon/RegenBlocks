@@ -1,11 +1,10 @@
 package me.boboballoon.regenblocks.command;
 
 import com.google.common.collect.Lists;
-import com.google.common.collect.Sets;
 import me.boboballoon.regenblocks.BlockManager;
 import me.boboballoon.regenblocks.RegenBlocks;
 import org.bukkit.ChatColor;
-import org.bukkit.Material;
+import org.bukkit.FluidCollisionMode;
 import org.bukkit.block.Block;
 import org.bukkit.command.*;
 import org.bukkit.entity.Player;
@@ -45,18 +44,23 @@ public class RegenBlockCommand implements CommandExecutor, TabExecutor {
 
         Player player = (Player) sender;
 
-        Block target = player.getTargetBlock(Sets.newHashSet(Material.WATER, Material.LAVA), 5);
+        Block target = player.getTargetBlockExact(5, FluidCollisionMode.NEVER);
 
         //not valid block
-        if (target.getType() == Material.AIR) {
+        if (target == null) {
             this.sendMessage(player, "&r&cInvalid block!");
             return false;
         }
 
         //correct remove
         if (args.length == 1 && args[0].trim().equalsIgnoreCase("remove")) {
-            this.blockManager.removeBlock(target.getLocation());
-            this.sendMessage(player, "&r&aSuccess!");
+            //nested if statement, YUCK
+            if (this.blockManager.removeBlock(target.getLocation())) {
+                this.sendMessage(player, "&r&aSuccess!");
+            } else {
+                this.sendMessage(player, "&r&cThis is not a regen block!");
+            }
+
             return true;
         }
 
@@ -74,7 +78,12 @@ public class RegenBlockCommand implements CommandExecutor, TabExecutor {
             return false;
         }
 
-        this.blockManager.addBlock(target.getLocation(), delay);
+        if (this.blockManager.addBlock(target.getLocation(), delay)) {
+            this.sendMessage(player, "&r&aSuccess!");
+        } else {
+            this.sendMessage(player, "&r&cAnother regen block already exists here!");
+        }
+
         return true;
     }
 
@@ -111,6 +120,6 @@ public class RegenBlockCommand implements CommandExecutor, TabExecutor {
      * @param message the message to be sent
      */
     private void sendMessage(@NotNull CommandSender user, @NotNull String message) {
-        user.sendMessage(ChatColor.translateAlternateColorCodes('&', "&r[RegenBlocks] > " + message));
+        user.sendMessage(ChatColor.translateAlternateColorCodes('&', "&r&a[&r&cRegenBlocks&r&a] > &r" + message));
     }
 }

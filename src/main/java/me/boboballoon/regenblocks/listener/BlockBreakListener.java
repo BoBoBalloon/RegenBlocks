@@ -31,7 +31,7 @@ public class BlockBreakListener implements Listener {
 
         Block block = event.getBlock();
 
-        block.setType(Material.BEDROCK);
+        Bukkit.getScheduler().runTask(this.plugin, () -> block.setType(Material.BEDROCK));
         Bukkit.getScheduler().runTaskLater(this.plugin, () -> block.setType(regenBlock.getType()), regenBlock.getDelay());
     }
 }

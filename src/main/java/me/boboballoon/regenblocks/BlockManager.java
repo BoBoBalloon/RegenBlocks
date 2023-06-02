@@ -1,18 +1,14 @@
 package me.boboballoon.regenblocks;
 
 import com.google.common.collect.ImmutableSet;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
+import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
+import java.io.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.logging.Level;
@@ -23,8 +19,6 @@ import java.util.logging.Level;
 public class BlockManager {
     private final RegenBlocks plugin;
     private final ConcurrentMap<Location, RegenBlock> cache;
-
-    private static final Gson GSON = new GsonBuilder().create();
 
     public BlockManager(@NotNull RegenBlocks plugin) {
         this.plugin = plugin;
@@ -59,10 +53,19 @@ public class BlockManager {
                 RegenBlock block;
 
                 try {
-                    block = GSON.fromJson(new FileReader(file), RegenBlock.class);
+                    JsonReader reader = new JsonReader(new FileReader(file));
+                    reader.setLenient(true);
+
+                    block = RegenBlocks.GSON.fromJson(reader, RegenBlock.class);
+
+                    reader.close();
                 } catch (Exception e) {
                     this.plugin.getLogger().log(Level.SEVERE, "There was an error decoding the JSON!");
                     e.printStackTrace();
+                    continue;
+                }
+
+                if (block == null) {
                     continue;
                 }
 
@@ -90,7 +93,12 @@ public class BlockManager {
 
             try {
                 file.createNewFile();
-                GSON.toJson(block, RegenBlock.class, new JsonWriter(new FileWriter(file)));
+
+                JsonWriter writer = new JsonWriter(new BufferedWriter(new FileWriter(file)));
+
+                RegenBlocks.GSON.toJson(block, RegenBlock.class, writer);
+
+                writer.close();
             } catch (IOException e) {
                 this.plugin.getLogger().log(Level.SEVERE, "There was an error writing to disk!");
                 e.printStackTrace();
@@ -106,25 +114,33 @@ public class BlockManager {
      *
      * @param location the location of the block
      * @param delay the time it will take to regenerate in ticks
+     * @return true if the operation was a success
      */
-    public void addBlock(@NotNull Location location, long delay) {
+    public boolean addBlock(@NotNull Location location, long delay) {
+        if (this.cache.containsKey(location)) {
+            return false;
+        }
+
         this.write(new RegenBlock(location, location.getBlock().getType(), delay));
+        return true;
     }
 
     /**
      * A method used to remove a block from the cache and remove it from disk
      *
      * @param location the location of the block
+     * @return true if the operation was a success
      */
-    public void removeBlock(@NotNull Location location) {
+    public boolean removeBlock(@NotNull Location location) {
         RegenBlock block = this.cache.remove(location);
 
         if (block == null) {
-            return;
+            return false;
         }
 
         File file = new File(this.plugin.getDataFolder(), block.getUUID().toString() + ".json");
         file.delete();
+        return true;
     }
 
     /**
